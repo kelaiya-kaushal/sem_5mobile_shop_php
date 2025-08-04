@@ -1,0 +1,106 @@
+ body {
+      background-color: #f2f4f8;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 50px 20px;
+    }
+
+    .card {
+      background-color: #fff;
+      width: 100%;
+      max-width: 900px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+
+    .card h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .card .header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    .btn-add {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-left: 10px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-add i {
+      margin-right: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+    }
+
+    th, td {
+      border: 1px solid #eee;
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f5f7fa;
+      font-weight: 600;
+    }
+
+    .product-image {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .action-icons a {
+      margin-right: 10px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .action-icons .edit {
+      color: #007bff;
+    }
+
+    .action-icons .delete {
+      color: #dc3545;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 20px;
+      }
+
+      th, td {
+        font-size: 13px;
+      }
+
+      .btn-add {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+    }

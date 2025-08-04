@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobileShop - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+       
+
+        // Product management system
+        function showProductManagement() {`
+            // Create product management view
+            const productManagement = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-11/12 max-w-4xl h-5/6 overflow-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Product Management</h2>
+                            <button class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.parentElement.remove()">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <input type="text" id="productSearch" placeholder="Search products..." class="col-span-3 p-2 border rounded">
+                            <button onclick="showAddProductForm()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                <i class="fas fa-plus mr-2"></i> Add Product
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="py-2 px-4 border">Image</th>
+                                        <th class="py-2 px-4 border">Name</th>
+                                        <th class="py-2 px-4 border">Price</th>
+                                        <th class="py-2 px-4 border">Stock</th>
+                                        <th class="py-2 px-4 border">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productTableBody">
+                                    <!-- Products will be dynamically inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', productManagement);
+            loadProductTable();
+        }
+
+        function loadProductTable() {
+            // Mock product data - in real app this would come from API/database
+            const products = [
+                {id: 1, name: "iPhone 15 Pro", price: 999, stock: 15, image: "https://example.com/iphone.jpg"},
+                {id: 2, name: "Galaxy S23", price: 799, stock: 8, image: "https://example.com/galaxy.jpg"},
+                {id: 3, name: "Pixel 8 Pro", price: 899, stock: 12, image: "https://example.com/pixel.jpg"}
+            ];
+
+            const tableBody = document.getElementById('productTableBody');
+            tableBody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-2 px-4 border"><img src="${product.image}" alt="${product.name}" class="w-12 h-12 object-contain"></td>
+                    <td class="py-2 px-4 border">${product.name}</td>
+                    <td class="py-2 px-4 border">${product.price}</td>
+                    <td class="py-2 px-4 border">${product.stock}</td>
+                    <td class="py-2 px-4 border">
+                        <button class="text-blue-500 hover:text-blue-700 mx-1" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-500 hover:text-red-700 mx-1" title="Delete" onclick="deleteProduct(${product.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function showAddProductForm() {
+            const form = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-11/12 max-w-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Add New Product</h2>
+                            <button class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.parentElement.remove()">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <form id="addProductForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="col-span-2">
+                                <label class="block text-gray-700 mb-1">Product Image</label>
+                                <input type="file" id="productImage" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Product Name*</label>
+                                <input type="text" id="productName" class="w-full p-2 border rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Price*</label>
+                                <input type="number" step="0.01" id="productPrice" class="w-full p-2 border rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Stock Quantity*</label>
+                                <input type="number" id="productStock" class="w-full p-2 border rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Category</label>
+                                <select id="productCategory" class="w-full p-2 border rounded">
+                                    <option value="smartphones">Smartphones</option>
+                                    <option value="accessories">Accessories</option>
+                                    <option value="tablets">Tablets</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-gray-700 mb-1">Description</label>
+                                <textarea id="productDesc" class="w-full p-2 border rounded" rows="3"></textarea>
+                            </div>
+                            <div class="col-span-2 flex justify-end space-x-3">
+                                <button type="button" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" 
+                                    onclick="document.getElementById('addProductForm').parentElement.parentElement.remove()">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                    Add Product
+                                </button>   
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', form);
+            
+            // Handle form submission
+            document.getElementById('addProductForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // In a real app, you would send this data to your server
+                alert('Product would be added here (server integration needed)');
+                this.parentElement.parentElement.remove();
+                loadProductTable(); // Refresh the product list
+            });
+        }
+
+        function deleteProduct(productId) {
+            if(confirm('Are you sure you want to delete this product?')) {
+                // In a real app, you would make an API call to delete the product
+                console.log(`Product ${productId} would be deleted here`);
+                alert(`Product ${productId} deleted successfully (would be permanent in real system)`);
+                loadProductTable(); // Refresh the product list
+            }
+        }
+
+        function showOrderDetails(orderId) {
+            const orderView = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-11/12 max-w-4xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Order #${orderId} Details</h2>
+                            <button class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.parentElement.remove()">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h3 class="font-bold mb-2">Customer Information</h3>
+                                <div class="bg-gray-50 p-4 rounded">
+                                    <p><strong>Name:</strong> John Smith</p>
+                                    <p><strong>Email:</strong> john@example.com</p>
+                                    <p><strong>Phone:</strong> (555) 123-4567</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-2">Order Summary</h3>
+                                <div class="bg-gray-50 p-4 rounded">
+                                    <p><strong>Status:</strong> 
+                                        <select class="ml-2 border rounded p-1">
+                                            <option>Processing</option>
+                                            <option>Shipped</option>
+                                            <option>Delivered</option>
+                                            <option>Cancelled</option>
+                                        </select>
+                                    </p>
+                                    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                                    <p><strong>Total:</strong> $1,299.00</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="font-bold mb-2">Order Items</h3>
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="py-2 px-4 border">Product</th>
+                                        <th class="py-2 px-4 border">Price</th>
+                                        <th class="py-2 px-4 border">Qty</th>
+                                        <th class="py-2 px-4 border">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-2 px-4 border">iPhone 15 Pro (256GB)</td>
+                                        <td class="py-2 px-4 border">$999.00</td>
+                                        <td class="py-2 px-4 border">1</td>
+                                        <td class="py-2 px-4 border">$999.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4 border">Apple AirPods Pro</td>
+                                        <td class="py-2 px-4 border">$249.00</td>
+                                        <td class="py-2 px-4 border">1</td>
+                                        <td class="py-2 px-4 border">$249.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', orderView);
+        }
+
+        // Order management system
+        function showOrderManagement() {
+            const orderManagement = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-11/12 max-w-6xl h-5/6 overflow-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Order Management</h2>
+                            <button class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.parentElement.remove()">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <input type="text" id="orderSearch" placeholder="Search orders..." class="col-span-3 p-2 border rounded">
+                            <select class="border rounded p-2" id="orderStatusFilter">
+                                <option value="">All Statuses</option>
+                                <option>Processing</option>
+                                <option>Shipped</option>
+                                <option>Delivered</option>
+                                <option>Cancelled</option>
+                            </select>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="py-2 px-4 border">Order ID</th>
+                                        <th class="py-2 px-4 border">Customer</th>
+                                        <th class="py-2 px-4 border">Status</th>
+                                        <th class="py-2 px-4 border">Total</th>
+                                        <th class="py-2 px-4 border">Date</th>
+                                        <th class="py-2 px-4 border">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderTableBody">
+                                    <!-- Orders will be dynamically inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', orderManagement);
+            loadOrderTable();
+        }
+
+        function loadOrderTable() {
+            // Mock order data
+            const orders = [
+                {id: 'MS-7895', customer: 'John Smith', status: 'Delivered', total: 1299, date: new Date().toLocaleDateString()},
+                {id: 'MS-7894', customer: 'Sarah Johnson', status: 'Shipped', total: 799, date: new Date().toLocaleDateString()},
+                {id: 'MS-7893', customer: 'Michael Brown', status: 'Processing', total: 599, date: new Date(new Date().setDate(new Date().getDate()-1)).toLocaleDateString()}
+            ];
+
+            const tableBody = document.getElementById('orderTableBody');
+            tableBody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-2 px-4 border">#${order.id}</td>
+                    <td class="py-2 px-4 border">${order.customer}</td>
+                    <td class="py-2 px-4 border">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${order.status === 'Delivered' ? 'bg-green-100 text-green-800' : 
+                              order.status === 'Shipped' ? 'bg-yellow-100 text-yellow-800' : 
+                              order.status === 'Processing' ? 'bg-blue-100 text-blue-800' : 
+                              'bg-red-100 text-red-800'}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td class="py-2 px-4 border">${order.total}</td>
+                    <td class="py-2 px-4 border">${order.date}</td>
+                    <td class="py-2 px-4 border">
+                        <button class="text-blue-500 hover:text-blue-700 mx-1" title="View Details" onclick="showOrderDetails('${order.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="text-green-500 hover:text-green-700 mx-1" title="Update Status">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Sales Analytics System
+        function showSalesAnalytics() {
+            const analyticsView = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-11/12 max-w-6xl h-5/6 overflow-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Sales Analytics Dashboard</h2>
+                            <button class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.parentElement.remove()">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <!-- Time Period Filter -->
+                            <select class="border rounded p-2">
+                                <option selected>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                                <option>Last Quarter</option>
+                                <option>Last Year</option>
+                            </select>
+                            
+                            <!-- Product Category Filter -->
+                            <select class="border rounded p-2">
+                                <option selected>All Categories</option>
+                                <option>Smartphones</option>
+                                <option>Accessories</option>
+                                <option>Tablets</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            <!-- Revenue Chart -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-3">Revenue Analysis</h3>
+                                <canvas id="revenueChart" height="250"></canvas>
+                            </div>
+                            
+                            <!-- Sales Volume -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-3">Sales Volume</h3>
+                                <canvas id="volumeChart" height="250"></canvas>
+                            </div>
+                            
+                            <!-- Popular Products -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-3">Top Selling Products</h3>
+                                <canvas id="productsChart" height="250"></canvas>
+                            </div>
+                            
+                            <!-- Customer Demographics -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-3">Customer Segments</h3>
+                                <canvas id="customersChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', analyticsView);
+            
+            // Initialize charts - in a real app this would use real data
+            setTimeout(() => {
+                new Chart(document.getElementById('revenueChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [3500, 4200, 3900, 4800, 5200, 6100],
+                            borderColor: '#3a7bd5',
+                            backgroundColor: 'rgba(58, 123, 213, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    }
+                });
+
+                new Chart(document.getElementById('volumeChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Units Sold',
+                            data: [120, 145, 135, 160, 180, 210],
+                            backgroundColor: '#00d2ff',
+                            borderColor: '#00d2ff',
+                        }]
+                    }
+                });
+
+                new Chart(document.getElementById('productsChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['iPhone 15', 'Galaxy S23', 'Pixel 8', 'OnePlus 11'],
+                        datasets: [{
+                            data: [45, 30, 15, 10],
+                            backgroundColor: [
+                                '#3a7bd5',
+                                '#00d2ff',
+                                '#A43931',
+                                '#1D976C'
+                            ]
+                        }]
+                    }
+                });
+
+                new Chart(document.getElementById('customersChart').getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: ['New Customers', 'Repeat Customers', 'VIP Customers'],
+                        datasets: [{
+                            data: [30, 50, 20],
+                            backgroundColor: [
+                                '#3a7bd5',
+                                '#00d2ff',
+                                '#A43931'
+                            ]
+                        }]
+                    }
+                });
+            }, 100);
+        }
+
+        // Simple product search functionality
+        document.addEventListener('input', function(e) {
+            if(e.target.id === 'productSearch') {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#productTableBody tr');
+                
+                rows.forEach(row => {
+                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    row.style.display = name.includes(searchTerm) ? '' : 'none';
+                });
+            }
+            if(e.target.id === 'orderSearch') {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#orderTableBody tr');
+                
+                rows.forEach(row => {
+                    const customer = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    const orderId = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                    row.style.display = (customer.includes(searchTerm) || orderId.includes(searchTerm)) ? '' : 'none';
+                });
+            }
+        });
+
+        // Category Management System
+        function showCategoryManagement() {
+            const html = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-11/12 max-w-4xl h-5/6 overflow-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Category Management</h2>
+                            <button class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.parentElement.remove()">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mobile-alt text-blue-500 mr-3 text-xl"></i>
+                                        <span>Smartphones</span>
+                                    </div>
+                                    <span class="text-sm text-gray-500">15 products</span>
+                                </div>
+                                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-headphones text-purple-500 mr-3 text-xl"></i>
+                                        <span>Accessories</span>
+                                    </div>
+                                    <span class="text-sm text-gray-500">8 products</span>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-3">Add New Category</h3>
+                                <div class="flex">
+                                    <input type="text" placeholder="Category name" class="flex-1 p-2 border rounded-l">
+                                    <button class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        document.getElementById('orderStatusFilter')?.addEventListener('change', function(e) {
+            const status = e.target.value;
+            const rows = document.querySelectorAll('#orderTableBody tr');
+            
+            rows.forEach(row => {
+                const rowStatus = row.querySelector('td:nth-child(3) span').textContent;
+                row.style.display = !status || rowStatus === status ? '' : 'none';
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .dashboard-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Interactive category cards */
+        .category-card {
+            transition: all 0.2s ease;
+        }
+        .category-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .sidebar-item {
+            transition: transform 0.2s ease;
+        }
+        .sidebar-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .product-image {
+            height: 120px;
+            object-fit: contain;
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 flex-shrink-0 hidden md:block">
+        <div class="p-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold">MobileShop Admin</h1>
+                <button id="sidebarToggle" class="text-white focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="mt-8">
+                <div class="flex items-center p-3 rounded-lg sidebar-item">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="flex items-center p-3 rounded-lg sidebar-item" onclick="showProductManagement()">
+                    <i class="fas fa-mobile-alt mr-3"></i>
+                    <span>Products</span>
+                </div>
+                <div class="flex items-center p-3 rounded-lg sidebar-item" onclick="showOrderManagement()">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    <span>Orders</span>
+                </div>
+                <div class="flex items-center p-3 rounded-lg sidebar-item">
+                    <i class="fas fa-users mr-3"></i>
+                    <span>Customers</span>
+                </div>
+                <div class="flex items-center p-3 rounded-lg sidebar-item" onclick="showSalesAnalytics()">
+                    <i class="fas fa-chart-line mr-3"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="flex items-center p-3 rounded-lg sidebar-item" onclick="showCategoryManagement()">
+                    <i class="fas fa-tag mr-3"></i>
+                    <span>Categories</span>
+                </div>
+                <div class="flex items-center p-3 rounded-lg sidebar-item" onclick="showAdminSettings()">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>Settings</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+        <!-- Top Navigation -->
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <button id="mobileSidebarToggle" class="md:hidden text-gray-600 mr-4 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="text-lg font-semibold">Dashboard</h2>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <i class="fas fa-bell text-gray-500"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+                </div>
+                <div class="flex items-center">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/bdbc9454-ebb5-43cd-b1ef-2232ea1acd60.png" alt="Admin profile picture - clean shaven man in business attire" class="rounded-full w-8 h-8 mr-2">
+                    <span class="hidden md:block">Admin User</span>
+                    <i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg p-6 shadow-sm dashboard-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500">Total Revenue</p>
+                            <h3 class="text-2xl font-bold">$24,780</h3>
+                        </div>
+                        <div class="bg-blue-100 text-blue-600 p-2 rounded-full">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-up mr-1"></i> 12% from last month</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-sm dashboard-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500">Total Orders</p>
+                            <h3 class="text-2xl font-bold">1,426</h3>
+                        </div>
+                        <div class="bg-green-100 text-green-600 p-2 rounded-full">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                    </div>
+                    <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-up mr-1"></i> 8% from last month</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-sm dashboard-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500">Total Products</p>
+                            <h3 class="text-2xl font-bold">329</h3>
+                        </div>
+                        <div class="bg-purple-100 text-purple-600 p-2 rounded-full">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                    </div>
+                    <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-up mr-1"></i> 5 new this week</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-sm dashboard-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500">Active Customers</p>
+                            <h3 class="text-2xl font-bold">842</h3>
+                        </div>
+                        <div class="bg-yellow-100 text-yellow-600 p-2 rounded-full">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <p class="text-red-500 text-sm mt-2"><i class="fas fa-arrow-down mr-1"></i> 2% from last month</p>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Sales Chart -->
+                <div class="bg-white p-6 rounded-lg shadow-sm col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold">Sales Overview</h3>
+                        <select class="border rounded px-3 py-1 text-sm bg-gray-50">
+                            <option>Last 7 days</option>
+                            <option>Last 30 days</option>
+                            <option selected>Last 6 months</option>
+                        </select>
+                    </div>
+                    <canvas id="salesChart" height="250"></canvas>
+                </div>
+                
+                <!-- Top Selling Products -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-semibold mb-4">Top Selling Products</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2fbc3887-ec0a-4f65-a235-bb73e595488b.png" alt="Latest iPhone model with edge-to-edge display in midnight color" class="w-12 h-12 rounded mr-3">
+                            <div class="flex-1">
+                                <p class="font-medium">iPhone 15 Pro</p>
+                                <p class="text-gray-500 text-sm">108 sold</p>
+                            </div>
+                            <span class="font-bold">$999</span>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8a752a59-9b1b-413b-9219-c8abccf69ba0.png" alt="Samsung Galaxy S23 Ultra with S Pen and quad camera setup" class="w-12 h-12 rounded mr-3">
+                            <div class="flex-1">
+                                <p class="font-medium">Galaxy S23 Ultra</p>
+                                <p class="text-gray-500 text-sm">76 sold</p>
+                            </div>
+                            <span class="font-bold">$1,199</span>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/cbcb3dc7-87bb-42a1-99fd-21f5cea6b120.png" alt="Google Pixel 8 Pro with Tensor G3 chip and AI features" class="w-12 h-12 rounded mr-3">
+                            <div class="flex-1">
+                                <p class="font-medium">Pixel 8 Pro</p>
+                                <p class="text-gray-500 text-sm">63 sold</p>
+                            </div>
+                            <span class="font-bold">$899</span>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/55c05c79-f097-41f9-bccd-1347882a1ad1.png" alt="OnePlus 11 5G with Hasselblad camera and sleek black design" class="w-12 h-12 rounded mr-3">
+                            <div class="flex-1">
+                                <p class="font-medium">OnePlus 11 5G</p>
+                                <p class="text-gray-500 text-sm">52 sold</p>
+                            </div>
+                            <span class="font-bold">$699</span>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fbf35711-a962-4873-a53c-6b234c8eca98.png" alt="Xiaomi 13 Pro with Leica camera and ceramic back" class="w-12 h-12 rounded mr-3">
+                            <div class="flex-1">
+                                <p class="font-medium">Xiaomi 13 Pro</p>
+                                <p class="text-gray-500 text-sm">47 sold</p>
+                            </div>
+                            <span class="font-bold">$799</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders & Quick Actions -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Recent Orders -->
+                <div class="bg-white p-6 rounded-lg shadow-sm col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold">Recent Orders</h3>
+                        <a href="#" class="text-blue-600 text-sm">View All</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 cursor-pointer hover:underline" onclick="showOrderDetails('MS-7895')">#MS-7895</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">John Smith</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Delivered</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">$1,299.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Today, 10:45 AM</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">#MS-7894</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Sarah Johnson</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Shipped</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">$799.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Today, 9:30 AM</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">#MS-7893</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Michael Brown</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Processing</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">$599.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Yesterday, 4:20 PM</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">#MS-7892</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Emily Davis</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">Pending</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">$1,099.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Yesterday, 2:15 PM</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">#MS-7891</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Robert Wilson</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelled</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">$899.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Dec 12, 2023</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-semibold mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-blue-50 transition-colors" onclick="showAddProductForm()">
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-full mb-2">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <span class="text-sm">Add Product</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-green-50 transition-colors">
+                            <div class="bg-green-100 text-green-600 p-3 rounded-full mb-2">
+                                <i class="fas fa-tag"></i>
+                            </div>
+                            <span class="text-sm">Create Discount</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-purple-50 transition-colors">
+                            <div class="bg-purple-100 text-purple-600 p-3 rounded-full mb-2">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <span class="text-sm">View Reports</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-yellow-50 transition-colors">
+                            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full mb-2">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <span class="text-sm">Manage Users</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Inventory Alerts -->
+                    <div class="mt-8">
+                        <h3 class="font-semibold mb-4">Low Stock Alerts</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c23f1633-5429-42ff-b4f0-c09b015debef.png" alt="iPhone 15 Pro Max in gold color" class="w-8 h-8 rounded mr-2">
+                                    <span class="text-sm">iPhone 15 Pro Max (Gold)</span>
+                                </div>
+                                <span class="text-red-500 text-sm font-medium">3 left</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4594d7e8-66cc-4b46-8bcd-ec7efe6990e8.png" alt="Samsung Galaxy Buds Pro 2 in black" class="w-8 h-8 rounded mr-2">
+                                    <span class="text-sm">Galaxy Buds Pro 2 (Black)</span>
+                                </div>
+                                <span class="text-yellow-500 text-sm font-medium">5 left</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/208502e8-7922-479b-b4ac-6c30289c92ba.png" alt="Google Pixel Watch 2 with silver case" class="w-8 h-8 rounded mr-2">
+                                    <span class="text-sm">Pixel Watch 2 (Silver)</span>
+                                </div>
+                                <span class="text-yellow-500 text-sm font-medium">7 left</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check auth state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already logged in (in real app, verify with server)
+            if (!isLoggedIn) {
+                showAuthModal();
+                // Hide the main content initially
+                document.querySelector('.flex-1').style.display = 'none';
+                document.querySelector('.sidebar').style.display = 'none';
+            }
+        });
+
+        // Initialize chart
+        document.addEventListener('DOMContentLoaded', function() {
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [3500, 4200, 3900, 4800, 5200, 6100, 5800, 6700, 6900, 7500, 8200, 9100],
+                        borderColor: '#3a7bd5',
+                        backgroundColor: 'rgba(58, 123, 213, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'Units Sold',
+                        data: [120, 145, 135, 160, 180, 210, 200, 220, 230, 250, 280, 310],
+                        borderColor: '#00d2ff',
+                        backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Revenue ($)'
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Units Sold'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Mobile sidebar toggle
+            document.getElementById('mobileSidebarToggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('hidden');
+            });
+
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('w-16');
+                document.querySelector('.sidebar').classList.toggle('w-64');
+                document.querySelectorAll('.sidebar-item span').forEach(el => {
+                    el.classList.toggle('hidden');
+                });
+                document.querySelector('.sidebar h1').classList.toggle('text-center');
+                document.querySelector('.sidebar h1').classList.toggle('text-xl');
+                document.querySelector('.sidebar h1').classList.toggle('text-sm');
+            });
+        });
+    </script>
+</body>
+</html>

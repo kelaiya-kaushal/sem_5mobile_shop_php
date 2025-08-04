@@ -1,0 +1,47 @@
+  
+ @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .dashboard-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Interactive category cards */
+        .category-card {
+            transition: all 0.2s ease;
+        }
+        .category-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .sidebar-item {
+            transition: transform 0.2s ease;
+        }
+        .sidebar-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .product-image {
+            height: 120px;
+            object-fit: contain;
+            background-color: #f1f1f1;
+        }

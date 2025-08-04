@@ -1,0 +1,35 @@
+body { background: #f4f8fc; }
+        .filter-box { background: #fff; border-radius: 8px;  box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card { 
+            border: none; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Added transition for smooth effect */
+        }
+        .card:hover { /* Added the hover effect */
+            transform: translateY(-5px); /* Lifts the card slightly */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); /* Increases the shadow */
+        }
+        .card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; }
+        .price { color: #333; font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem; }
+        .btn-buy { background: #000; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; transition: background 0.3s ease; }
+        .btn-buy:hover { background: #333; color: #fff; }
+        .card-img-top {
+            width: 100%;
+            height: 200px; /* Fixed height for consistent images */
+            object-fit: contain; /* Scales the image down to fit without cropping */
+            padding: 10px; /* Some padding around the image */
+            background-color: #f9f9f9; /* Light background for images */
+            border-bottom: 1px solid #eee;
+        }
+        .form-control, .form-select {
+            border-radius: 5px;
+        }
+        .btn-primary {
+            background-color: #0d6efd; /* Bootstrap blue */
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+   

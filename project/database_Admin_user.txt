@@ -1,0 +1,72 @@
+-- 1. User_Master Table
+CREATE TABLE User_Master (
+    user_id INT AUTO_INCREMENT PRIMARY KEY ,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(50) UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(15),
+    address TEXT,
+    created_at DATETIME
+);
+
+-- 2. Mobile_Brand Table (Category Master)
+CREATE TABLE Mobile_Brand (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(100) UNIQUE,
+    created_at DATETIME NOT NULL
+);
+
+-- 3. Product Table
+CREATE TABLE Product (
+    product_id INT PRIMARY KEY,
+    category_id INT REFERENCES Mobile_Brand(category_id),
+    name VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT  NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL,
+);
+
+-- 4. Cart Table
+CREATE TABLE Cart (
+    cart_id INT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    added_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User_Master(user_id),
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+); 
+
+-- 5. Orders Table
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    user_id INT NOT NULL,
+    total_amount DECIMAL(10,2)  NOT NULL,
+    order_status VARCHAR(50)    NOT NULL,
+    order_date DATETIME NOT NULL,
+    delivery_date DATETIME  NOT NULL,  
+    shipping_address TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User_Master(user_id)
+);
+
+-- 6. Ordered_Items Table
+CREATE TABLE Ordered_Items (
+    order_item_id INT PRIMARY KEY,
+    order_id INT    NOT NULL,
+    product_id INT   NOT NULL,
+    quantity INT NOT NULL,
+    price_each DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+
+-- 7. Admin_Master Table
+CREATE TABLE Admin_Master (
+    admin_id INT PRIMARY KEY AUTO_INCREMENT,
+    userName VARCHAR(100) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+);

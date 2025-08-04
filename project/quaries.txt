@@ -1,0 +1,98 @@
+create database e_com;
+use e_com;
+
+-- 1. User_Master Table
+CREATE TABLE User_Master (
+    user_id INT AUTO_INCREMENT PRIMARY KEY ,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(50) UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(15),
+    address TEXT,
+    created_at DATETIME
+);
+
+-- 2. Mobile_Brand Table (Category Master)
+CREATE TABLE Mobile_Brand (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(100) UNIQUE,
+    created_at DATETIME NOT NULL default now()
+);
+
+-- 3. Product Table
+CREATE TABLE Product (
+    product_id INT PRIMARY KEY,
+    category_id INT REFERENCES Mobile_Brand(category_id),
+    name VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT  NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL default now()
+);
+
+insert into Mobile_brand(category_id, category_name)
+VALUES(1,"Mobile");
+
+-- sample data to check
+insert into Product(product_id, category_id, name, description, price, stock, image_url)
+VALUES(6, 1, 'Samsung galazy z fold 7', 'description for Samsung galazy z fold 7', 155552.45, 50, 'https://gadgetsleo.com/core/webp-express/webp-images/uploads/2025/01/Samsung-Galaxy-Z-Fold-7-Blue-Shadow.jpg.webp');
+
+-- 4. Cart Table
+CREATE TABLE Cart (
+    cart_id INT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    added_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User_Master(user_id),
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+-- 5. Orders Table
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    user_id INT NOT NULL,
+    total_amount DECIMAL(10,2)  NOT NULL,
+    order_status VARCHAR(50)    NOT NULL,
+    order_date DATETIME NOT NULL,
+    delivery_date DATETIME  NOT NULL,  
+    shipping_address TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User_Master(user_id)
+);
+
+-- 6. Ordered_Items Table
+CREATE TABLE Ordered_Items (
+    order_item_id INT PRIMARY KEY,
+    order_id INT    NOT NULL,
+    product_id INT   NOT NULL,
+    quantity INT NOT NULL,
+    price_each DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+-- 7. Rating_Master Table
+CREATE TABLE Rating_Master (
+    rating_id INT PRIMARY KEY AUTO_INCREMENT,
+    rating_star INT CHECK (rating_star BETWEEN 1 AND 5) NOT NULL,
+    user_id INT NOT NULL REFERENCES User_Master(user_id),
+    product_id INT NOT NULL REFERENCES Product(product_id) 
+    
+);
+
+-- 8. Admin_Master Table
+CREATE TABLE Admin_Master (
+    admin_id INT PRIMARY KEY AUTO_INCREMENT,
+    userName VARCHAR(100) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL
+);
+
+create table users(
+	user_id int primary key auto_increment,
+    username varchar(100) unique not null,
+    email varchar(100) not null,
+    password varchar(255) not null,
+    created_at datetime not null default now()
+);
