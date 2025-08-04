@@ -6,7 +6,6 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -175,13 +174,8 @@ if (!isset($_SESSION['admin_logged_in'])) {
                     </div>
                     <p class="text-red-500 text-sm mt-2"><i class="fas fa-arrow-down mr-1"></i> 2% from last month</p>
                 </div>
-            </div>
-
-            
-           
-                
-                <!-- Top Selling Products -->
-                
+            </div>  
+                <!-- Top Selling Products -->  
             <!-- Recent Orders & Quick Actions -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Recent Orders -->
@@ -310,4 +304,5 @@ if (!isset($_SESSION['admin_logged_in'])) {
     </div>
 
     <script>
+
     
